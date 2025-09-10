@@ -1,81 +1,112 @@
 # AWS Cost Reaper
 
-A brutal Python CLI tool to **find (and later clean up)** unused AWS resources.  
-- Built with [Boto3](https://boto3.amazonaws.com/).  
-- Default is **dry-run**: **no deletions** unless you explicitly enable cleanup (future version).  
-- Includes **FAKE mode** so you can demo/test even without AWS credentials.  
+**A Python CLI tool to identify (and soon clean up) unused AWS resources.**
+
+AWS Cost Reaper helps reduce unnecessary cloud spend by detecting idle EC2 resources in your AWS environment. Built with Boto3, it's designed for safe analysis with a dry-run default and a local FAKE mode for testing without credentials.
 
 ---
 
-## 🚀 Features
-- Scan for:
-  - Stopped **EC2 instances**
-  - Unattached **EBS volumes**
-  - Unused **Elastic IPs**
-- Output in **table** or **JSON** format  
-- **FAKE mode** (`AWS_COST_REAPER_FAKE=1`) for safe local testing  
-- Structured as a proper Python package (`cost_reaper/`)  
+## Features
+
+* Detects:
+
+  * Stopped EC2 instances
+  * Unattached EBS volumes
+  * Unused Elastic IPs
+* Output formats: `table` or `json`
+* **Dry-run mode by default** — no deletions performed
+* **FAKE mode** for safe local testing without AWS access (`AWS_COST_REAPER_FAKE=1`)
+* Structured as a standard Python package: `cost_reaper/`
 
 ---
 
-## ⚙️ Setup
+## Setup
 
-Clone the repo:
+Clone the repository:
 
+```bash
 git clone https://github.com/TJtech1210/aws-cost-reaper.git
 cd aws-cost-reaper
+```
 
-Create a virtual environment:
+Create and activate a virtual environment:
 
+**macOS / Linux:**
+
+```bash
 python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# .venv\Scripts\activate   # Windows PowerShell
+source .venv/bin/activate
+```
 
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate
+```
 
 Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
-🖥️ Usage
+---
 
-FAKE mode demo (no AWS required):
+## Usage
 
+### Run in FAKE mode (no AWS credentials required)
+
+```bash
 export AWS_COST_REAPER_FAKE=1
 python -m cost_reaper.cli --scan --region us-east-1 --report table
+```
+
+Or for JSON output:
+
+```bash
 python -m cost_reaper.cli --scan --region us-east-1 --report json
+```
 
+### Sample Output (Table)
 
-Example output (table):
-
+```
 == Stopped EC2 Instances ==
-- i-fake123456  launched=2024-01-01T12:00:00Z  region=us-east-1  FAKE
+i-fake123456  launched=2024-01-01T12:00:00Z  region=us-east-1  FAKE
 
 == Unattached EBS Volumes ==
-- vol-fake111  sizeGiB=20  created=2024-01-15T10:00:00Z  region=us-east-1  FAKE
+vol-fake111  sizeGiB=20  created=2024-01-15T10:00:00Z  region=us-east-1  FAKE
 
 == Unused Elastic IPs ==
-- 203.0.113.10  allocationId=eipalloc-fakeaaa  region=us-east-1  FAKE
+203.0.113.10  allocationId=eipalloc-fakeaaa  region=us-east-1  FAKE
+```
 
-🔒 AWS Permissions Required (for real scans)
+---
 
-When not in FAKE mode, the following IAM actions are required:
+## Required AWS Permissions
 
-ec2:DescribeInstances
+For real scans (not using FAKE mode), the following IAM permissions are required:
 
-ec2:DescribeVolumes
+* `ec2:DescribeInstances`
+* `ec2:DescribeVolumes`
+* `ec2:DescribeAddresses`
 
-ec2:DescribeAddresses
+You can attach the AWS-managed **ReadOnlyAccess** policy or create a minimal custom policy with just these actions.
 
-Attach either the AWS managed ReadOnlyAccess policy or a custom policy with those actions.
+---
 
-🛣️ Roadmap
+## Roadmap
 
- Add cleanup mode (--cleanup --force) for safe deletions
+* Add `--cleanup` and `--force` flags for safe resource deletion
+* Rich CLI output with colorized tables (`rich` library)
+* Unit test suite with mock AWS clients for CI/CD integration
+* Extend support to:
 
- Rich table output with colors (rich library)
+  * RDS snapshots
+  * Unused IAM users
+  * More AWS resource types
 
- Unit tests with mocks for CI/CD
+---
 
- Support for more resource types (RDS snapshots, unused IAM users, etc.)
-
-
+**Contributions and feedback are welcome.**
+If this tool helped you reduce AWS costs or spot forgotten resources, let me know or share the repo!
